@@ -4,12 +4,8 @@ from typing import List, Dict
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
-import io
-from PyPDF2 import PdfReader
-from docx import Document
-import re
-import json
-import csv
+from dotenv import load_dotenv
+import os
 
 from presidio_nlp_engine_config import (
     create_transformer_engine,
@@ -25,44 +21,10 @@ from presidio_helpers import (
     anonymize_text
 )
 
-def read_file_content(uploaded_file):
-    file_type = uploaded_file.type
-    if file_type == "text/plain":
-        return uploaded_file.getvalue().decode("utf-8")
-    elif file_type == "application/pdf":
-        pdf_reader = PdfReader(io.BytesIO(uploaded_file.getvalue()))
-        return "\n".join(page.extract_text() for page in pdf_reader.pages)
-    elif file_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        doc = Document(io.BytesIO(uploaded_file.getvalue()))
-        return "\n".join(paragraph.text for paragraph in doc.paragraphs)
-    else:
-        raise ValueError(f"Nepodporovaný typ souboru: {file_type}")
+from czech_recognizers import create_czech_recognizers
 
-def highlight_pii(text, results):
-    highlighted_text = text
-    for result in sorted(results, key=lambda x: x.start, reverse=True):
-        highlighted_text = (
-            highlighted_text[:result.start]
-            + f"<span style='background-color: yellow;'>{highlighted_text[result.start:result.end]}</span>"
-            + highlighted_text[result.end:]
-        )
-    return highlighted_text
-
-def export_results(anonymized_text, results, format):
-    if format == "txt":
-        return anonymized_text
-    elif format == "json":
-        return json.dumps({
-            "anonymized_text": anonymized_text,
-            "detected_pii": [{"entity_type": r.entity_type, "start": r.start, "end": r.end} for r in results]
-        }, ensure_ascii=False)
-    elif format == "csv":
-        output = io.StringIO()
-        writer = csv.writer(output)
-        writer.writerow(["Entity Type", "Start", "End", "Anonymized Value"])
-        for r in results:
-            writer.writerow([r.entity_type, r.start, r.end, anonymized_text[r.start:r.end]])
-        return output.getvalue()
+# Načtení proměnných prostředí
+load_dotenv()
 
 # Inicializace Hugging Face autentizace
 initialize_huggingface_auth()
@@ -76,34 +38,42 @@ st.sidebar.title("Nastavení anonymizace")
 # Výběr modelu
 model_options = {
     "Piiranha": "iiiorg/piiranha-v1-detect-personal-information",
-    "Vlastní model": "cesta/k/vašemu/modelu",  # Nahraďte skutečnou cestou k vašemu modelu
+    "Vlastní model": os.getenv("CUSTOM_MODEL_PATH", "cesta/k/vašemu/modelu"),
 }
 selected_model = st.sidebar.selectbox("Vyberte model", list(model_options.keys()))
 
 # Metoda anonymizace
-anon_method = st.sidebar.selectbox(
+anon_method_mapping = {
+    "Nahrazení": "replace",
+    "Maskování": "mask",
+    "Odstranění": "redact",
+    "Hashování": "hash"
+}
+anon_method_cs = st.sidebar.selectbox(
     "Metoda anonymizace",
-    ["Odstranění", "Nahrazení", "Maskování"],
+    list(anon_method_mapping.keys()),
     help="Vyberte způsob anonymizace detekovaných PII."
 )
+anon_method = anon_method_mapping[anon_method_cs]
 
 # Agregovaná redakce
 aggregate_redaction = st.sidebar.checkbox("Agregovaná redakce", value=True, 
                                           help="Pokud je zaškrtnuto, všechny PII budou označeny jako '[redacted]'. Jinak budou označeny specifickým typem PII.")
 
 # PII kategorie
-pii_categories = get_supported_entities(model_options[selected_model])
+@st.cache_data
+def get_all_supported_entities(model_path: str):
+    model_entities = get_supported_entities(model_path)
+    czech_entities = [recognizer.supported_entities[0] for recognizer in create_czech_recognizers()]
+    return list(set(model_entities + czech_entities))
+
+pii_categories = get_all_supported_entities(model_options[selected_model])
 selected_categories = st.sidebar.multiselect(
     "PII kategorie k anonymizaci",
     pii_categories,
     default=list(pii_categories)[:3],
     help="Vyberte typy PII, které chcete anonymizovat."
 )
-
-# Pokročilá nastavení
-with st.sidebar.expander("Pokročilá nastavení"):
-    threshold = st.slider("Práh detekce", 0.0, 1.0, 0.5, help="Minimální skóre pro detekci PII")
-    language = st.selectbox("Jazyk textu", ["cs", "en", "auto"], help="Jazyk vstupního textu")
 
 # Hlavní obsah
 st.title("Komplexní anonymizační platforma pro české texty")
@@ -116,11 +86,26 @@ if input_method == "Nahrát soubor":
     uploaded_file = st.file_uploader("Nahrajte soubor (TXT, PDF, DOCX):", type=["txt", "pdf", "docx"])
     if uploaded_file:
         try:
-            input_text = read_file_content(uploaded_file)
+            from document_processors import read_file_content
+            input_text = read_file_content(uploaded_file, uploaded_file.type)
         except Exception as e:
             st.error(f"Chyba při čtení souboru: {e}")
+            input_text = ""
 else:
     input_text = st.text_area("Vložte text k anonymizaci:", height=200)
+
+# Mapování entit pro zobrazení
+entity_mapping = {
+    "PERSON": "Osoba",
+    "PHONE_NUMBER": "Telefonní číslo",
+    "EMAIL": "E-mail",
+    "ADDRESS": "Adresa",
+    "CREDIT_CARD": "Kreditní karta",
+    "IBAN_CODE": "IBAN",
+    "ID": "Identifikační číslo",
+    "IP_ADDRESS": "IP adresa",
+    # Přidejte další mapování podle potřeby
+}
 
 # Proces anonymizace
 if st.button("Anonymizovat"):
@@ -128,50 +113,31 @@ if st.button("Anonymizovat"):
         try:
             # Analýza textu
             with st.spinner('Analyzuji text...'):
-                if len(input_text) > 0:
-                    results = analyze_text(model_options[selected_model], input_text, selected_categories, threshold=threshold, language=language)
-                else:
-                    st.warning("Vstupní text je prázdný. Nelze provést analýzu.")
-                    results = []
+                results = analyze_text(model_options[selected_model], input_text, selected_categories)
             
-            # Vizualizace detekovaných PII
-            st.header("Detekované PII")
-            highlighted_text = highlight_pii(input_text, results)
-            st.markdown(highlighted_text, unsafe_allow_html=True)
+            # Zobrazení detekovaných entit pro diagnostiku
+            st.write("Detekované entity:")
+            for result in results:
+                entity_type = entity_mapping.get(result.entity_type, result.entity_type)
+                st.write(f"{entity_type}: {input_text[result.start:result.end]}")
             
             # Anonymizace textu
             with st.spinner('Anonymizuji text...'):
                 anonymized_text = anonymize_text(
                     text=input_text,
-                    operator=anon_method.lower(),
+                    operator=anon_method,
                     analyze_results=results,
-                    mask_char='*' if anon_method == "Maskování" else None,
-                    chars_to_mask=4 if anon_method == "Maskování" else None
+                    mask_char='*' if anon_method == "mask" else None,
+                    chars_to_mask=0 if anon_method == "mask" else None
                 )
 
             # Zobrazení výsledků
             st.header("Výsledky anonymizace")
             st.text_area("Anonymizovaný text:", value=anonymized_text, height=200)
 
-            # Výpočet a zobrazení přesnosti
-            def calculate_accuracy(original_text, anonymized_text, results):
-                total_pii = len(results)
-                correctly_anonymized = sum(1 for r in results if anonymized_text[r.start:r.end] != original_text[r.start:r.end])
-                return correctly_anonymized / total_pii if total_pii > 0 else 1.0
-
-            accuracy = calculate_accuracy(input_text, anonymized_text, results)
-            st.metric("Přesnost anonymizace", f"{accuracy:.2%}")
-
             # Možnosti exportu
             st.header("Export výsledků")
-            export_format = st.selectbox("Formát exportu", ["txt", "json", "csv"])
-            export_data = export_results(anonymized_text, results, export_format)
-            st.download_button(
-                f"Stáhnout anonymizovaný text ({export_format.upper()})",
-                export_data,
-                f"anonymized_text.{export_format}",
-                mime=f"text/{export_format}"
-            )
+            st.download_button("Stáhnout anonymizovaný text", anonymized_text, "anonymized_text.txt")
 
             # Přidání do historie
             if 'history' not in st.session_state:
@@ -179,7 +145,7 @@ if st.button("Anonymizovat"):
             
             st.session_state.history.append({
                 "Model": selected_model,
-                "Metoda anonymizace": anon_method,
+                "Metoda anonymizace": anon_method_cs,
                 "Počet detekovaných PII": len(results),
                 "Délka vstupního textu": len(input_text),
                 "Délka výstupního textu": len(anonymized_text)
@@ -205,9 +171,8 @@ with st.expander("Jak používat Czech PII Anonymizer"):
     3. Vyberte kategorie PII, které chcete anonymizovat.
     4. Nahrajte soubor nebo vložte text k anonymizaci.
     5. Klikněte na tlačítko 'Anonymizovat'.
-    6. Prohlédněte si detekované PII a výsledky anonymizace.
-    7. Vyberte formát exportu a stáhněte anonymizovaný text.
-    8. Historie anonymizací je k dispozici ve spodní části stránky.
+    6. Prohlédněte si výsledky a stáhněte anonymizovaný text.
+    7. Historie anonymizací je k dispozici ve spodní části stránky.
     """)
 
 # Footer
