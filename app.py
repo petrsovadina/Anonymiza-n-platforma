@@ -173,25 +173,74 @@ def show_about_project():
     
     Jako AI Developer jsem navrhl a implementoval systém pro automatickou detekci a anonymizaci osobních údajů (PII) v českém textu. Tento nástroj jsem vytvořil s cílem pomoci organizacím chránit soukromí jednotlivců při zpracování textových dat, což je klíčové při přípravě dat pro trénování jazykových modelů nebo chatbotů.
 
+    ## Časová osa vývoje
+
+    ### Dosavadní vývoj (3 dny):
+
+    1. **Den 1: Analýza a návrh**
+       - Průzkum existujících řešení
+       - Definice požadavků a rozsahu projektu
+       - Návrh architektury systému
+
+    2. **Den 2: Implementace základní funkcionality**
+       - Vývoj modulů pro detekci PII pomocí regulárních výrazů
+       - Implementace metod anonymizace
+       - Začátek vývoje uživatelského rozhraní
+
+    3. **Den 3: Dokončení prototypu a testování**
+       - Dokončení uživatelského rozhraní
+       - Implementace generování reportů
+       - Základní testování a ladění
+
+    ### Plán budoucího vývoje:
+
+    4. **Dny 4-5: Rozšíření funkcionality**
+       - Implementace pokročilých metod anonymizace
+       - Rozšíření podpory pro další typy dokumentů
+       - Vylepšení uživatelského rozhraní
+
+    5. **Dny 6-8: Implementace NLP modelů**
+       - Výběr vhodných NLP modelů pro detekci českých PII
+       - Příprava trénovacích dat
+       - Implementace a integrace NLP modelů do systému
+
+    6. **Dny 9-11: Trénink a ladění NLP modelů**
+       - Trénování NLP modelů na českých datech
+       - Fine-tuning modelů pro přesnou detekci PII
+       - Testování a vyhodnocení přesnosti modelů
+
+    7. **Dny 12-13: Optimalizace a škálování**
+       - Optimalizace výkonu systému
+       - Implementace škálovatelného řešení pro zpracování velkých objemů dat
+       - Integrace s externími systémy
+
+    8. **Dny 14-15: Finální testování a dokumentace**
+       - Komplexní testování celého systému
+       - Příprava uživatelské a technické dokumentace
+       - Vytvoření demonstračních materiálů
+
+    9. **Den 16: Nasazení a školení**
+       - Nasazení systému do produkčního prostředí
+       - Školení uživatelů a administrátorů
+       - Zahájení podpory a údržby
+
+    Celková odhadovaná pracnost: 16 pracovních dnů
+
     ## Klíčové aspekty mého řešení
 
-    1. **Pokročilá detekce PII**: Implementoval jsem sofistikované regulární výrazy pro detekci různých typů osobních údajů specifických pro český kontext. Toto zahrnuje detekci jmen, adres, rodných čísel, telefonních čísel, e-mailů, čísel občanských průkazů, pasů, bankovních účtů, IČO, DIČ a datových schránek.
+    1. **Pokročilá detekce PII**: Implementoval jsem sofistikované regulární výrazy pro detekci různých typů osobních údajů specifických pro český kontext.
 
-    2. **Flexibilní anonymizace**: Navrhl jsem tři metody anonymizace přizpůsobitelné různým potřebám ochrany soukromí:
-       - Nahrazení znakem 'X'
-       - Nahrazení obecným označením typu údaje (např. [JMÉNO])
-       - Použití falešných, ale realisticky vypadajících dat
+    2. **Flexibilní anonymizace**: Navrhl jsem tři metody anonymizace přizpůsobitelné různým potřebám ochrany soukromí.
 
-    3. **Interaktivní rozhraní**: Využil jsem Streamlit pro vytvoření uživatelsky přívětivého webového rozhraní, které umožňuje snadnou demonstraci a testování funkčnosti systému.
+    3. **Interaktivní rozhraní**: Využil jsem Streamlit pro vytvoření uživatelsky přívětivého webového rozhraní.
 
-    4. **Customizace**: Implementoval jsem možnost výběru konkrétních typů PII k detekci a anonymizaci, což umožňuje přizpůsobení procesu specifickým potřebám uživatele.
+    4. **Customizace**: Implementoval jsem možnost výběru konkrétních typů PII k detekci a anonymizaci.
 
-    5. **Reporting**: Vytvořil jsem systém pro generování přehledných statistik o detekovaných a anonymizovaných údajích, včetně možnosti stažení kompletního reportu.
+    5. **Reporting**: Vytvořil jsem systém pro generování přehledných statistik o detekovaných a anonymizovaných údajích.
 
     ## Algoritmus flow
 
     Pro lepší pochopení procesu detekce a anonymizace PII jsem vytvořil následující diagram, který ilustruje tok dat a klíčové kroky algoritmu:
-
     """)
     
     st.image("https://utfs.io/f/z2Za8Zqs0Nofbl54P61Phgi3WHO4xLUXal01qvcmesjT8KJp", caption="Diagram algoritmu flow pro detekci a anonymizaci PII")
@@ -208,6 +257,8 @@ def show_about_project():
     - **Regex**: Využití pokročilých regulárních výrazů pro přesnou detekci PII.
     - **Faker**: Generování realistických falešných dat pro anonymizaci.
     - **Pandas**: Zpracování a vizualizace statistik o detekovaných PII.
+
+    V budoucích fázích projektu plánuji integraci pokročilých NLP modelů pro ještě přesnější detekci českých PII.
 
     ## Využití pro přípravu dat
 
