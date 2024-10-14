@@ -169,148 +169,167 @@ def show_main_app():
 def show_about_project():
     st.title("O projektu")
     st.write("""
-    ## Přístup k projektu
+    ## Cíl projektu
+    
+    Jako AI Developer jsem navrhl a implementoval systém pro automatickou detekci a anonymizaci osobních údajů (PII) v českém textu. Tento nástroj jsem vytvořil s cílem pomoci organizacím chránit soukromí jednotlivců při zpracování textových dat, což je klíčové při přípravě dat pro trénování jazykových modelů nebo chatbotů.
 
-    Tento projekt Pokročilého Českého PII Anotátoru a Anonymizátoru demonstruje schopnosti v oblasti zpracování přirozeného jazyka a vývoje AI aplikací. Kombinuje znalosti strojového učení, zpracování textu a vývoje webových aplikací pro vytvoření komplexního řešení ochrany osobních údajů.
+    ## Klíčové aspekty mého řešení
 
-    ## Klíčové aspekty řešení
+    1. **Pokročilá detekce PII**: Implementoval jsem sofistikované regulární výrazy pro detekci různých typů osobních údajů specifických pro český kontext. Toto zahrnuje detekci jmen, adres, rodných čísel, telefonních čísel, e-mailů, čísel občanských průkazů, pasů, bankovních účtů, IČO, DIČ a datových schránek.
 
-    1. **Pokročilá detekce PII**: Implementace sofistikovaných regulárních výrazů pro detekci různých typů osobních údaj specifických pro český kontext. Toto zahrnuje detekci jmen, adres, rodných čísel, telefonních čísel a dalších citlivých informací.
+    2. **Flexibilní anonymizace**: Navrhl jsem tři metody anonymizace přizpůsobitelné různým potřebám ochrany soukromí:
+       - Nahrazení znakem 'X'
+       - Nahrazení obecným označením typu údaje (např. [JMÉNO])
+       - Použití falešných, ale realisticky vypadajících dat
 
-    2. **Flexibilní anonymizace**: Několik metod anonymizace přizpůsobitelných různým potřebám ochrany soukromí. Uživatelé mohou volit mezi nahrazením údajů zástupnými znaky, obecnými označeními nebo falešnými daty.
+    3. **Interaktivní rozhraní**: Využil jsem Streamlit pro vytvoření uživatelsky přívětivého webového rozhraní, které umožňuje snadnou demonstraci a testování funkčnosti systému.
 
-    3. **Uživatelsky přívětivé rozhraní**: Využití Streamlit pro interaktivní a snadno použitelné rozhraní. Aplikace poskytuje intuitivní ovládání a okamžitou vizualizaci výsledků anonymizace.
+    4. **Customizace**: Implementoval jsem možnost výběru konkrétních typů PII k detekci a anonymizaci, což umožňuje přizpůsobení procesu specifickým potřebám uživatele.
 
-    4. **Škálovatelnost**: Návrh aplikace s ohledem na budoucí rozšíření a integraci pokročilejších AI modelů. Architektura umožňuje snadné přidávání nových funkcí a vylepšení stávajících algoritmů.
+    5. **Reporting**: Vytvořil jsem systém pro generování přehledných statistik o detekovaných a anonymizovaných údajích, včetně možnosti stažení kompletního reportu.
 
-    ## Technické detaily
+    ## Algoritmus flow
 
-    - **Python**: Efektivní implementace logiky aplikace s využitím moderních Python knihoven a best practices.
-    - **NLP techniky**: Aplikace technik zpracování přirozeného jazyka pro přesnou detekci PII, včetně pokročilé tokenizace a analýzy kontextu.
-    - **Streamlit**: Rychlé prototypování pomocí moderních nástrojů pro tvorbu webových aplikací, umožňující snadnou iteraci a vylepšování uživatelského rozhraní.
-    - **Verzování**: Vývoj s využitím Git pro efektivní správu verzí a spolupráci, umožňující sledování změn a snadnou integraci nových funkcí.
+    Pro lepší pochopení procesu detekce a anonymizace PII jsem vytvořil následující diagram, který ilustruje tok dat a klíčové kroky algoritmu:
 
-    Tento projekt odráží schopnosti v oblasti AI vývoje, od návrhu algoritmu až po implementaci uživatelsky přívětivého rozhraní, s důrazem na praktické využití v reálném světě.
+    """)
+    
+    st.image("https://utfs.io/f/z2Za8Zqs0Nofbl54P61Phgi3WHO4xLUXal01qvcmesjT8KJp", caption="Diagram algoritmu flow pro detekci a anonymizaci PII")
+
+    st.write("""
+    Tento diagram ukazuje hlavní komponenty systému a jejich vzájemné interakce, od vstupu textu přes detekci PII až po výstup anonymizovaného textu a generování reportu.
+
+    ## Technologie a nástroje
+
+    Při vývoji tohoto projektu jsem využil následující technologie a knihovny:
+
+    - **Python**: Hlavní programovací jazyk pro implementaci logiky.
+    - **Streamlit**: Pro vytvoření interaktivního webového rozhraní.
+    - **Regex**: Využití pokročilých regulárních výrazů pro přesnou detekci PII.
+    - **Faker**: Generování realistických falešných dat pro anonymizaci.
+    - **Pandas**: Zpracování a vizualizace statistik o detekovaných PII.
+
+    ## Využití pro přípravu dat
+
+    Tento systém hraje klíčovou roli v procesu přípravy dat pro různé účely, včetně:
+
+    1. **Ochrana soukromí**: Anonymizace osobních údajů v dokumentech před jejich dalším zpracováním nebo sdílením.
+    2. **Příprava trénovacích dat**: Bezpečná příprava textových dat pro trénování jazykových modelů nebo chatbotů.
+    3. **Compliance**: Pomoc při dodržování předpisů o ochraně osobních údajů, jako je GDPR.
+    4. **Analýza dat**: Umožnění bezpečné analýzy textových dat bez rizika úniku citlivých informací.
+
+    Tento projekt demonstruje mou schopnost navrhnout a implementovat komplexní řešení pro ochranu osobních údajů s důrazem na praktické využití v reálném světě, zejména v kontextu zpracování a analýzy textových dat v českém jazyce.
     """)
 
 def show_future_development():
-    st.title("Vize budoucího vývoje")
+    st.title("Plán vývoje a nasazení")
     st.write("""
-    Plány pro další rozvoj projektu zahrnují:
+    ## Integrace s chatbotem pomocí FastAPI a LangChain
 
-    1. **Integrace pokročilých NLP modelů**: 
-       - Implementace state-of-the-art modelů jako BERT nebo GPT pro přesnější detekci PII.
-       - Využití transfer learningu pro adaptaci modelů na specifika českého jazyka a kontextu.
-       - Experimentování s vlastními fine-tuned modely pro zvýšení přesnosti detekce.
+    Pro efektivní využití našeho anonymizačního nástroje v systému chatbota implementujeme následující:
 
-    2. **Rozšíření na multijazyčnou podporu**: 
-       - Rozšíření aplikace na další jazyky, počínaje slovenštinou a angličtinou.
-       - Implementace detekce jazyka pro automatický výběr správných pravidel a modelů.
+    1. **FastAPI Endpoints**:
+       - `/anonymize`: POST endpoint pro anonymizaci jednotlivých textů
+       - `/batch-anonymize`: POST endpoint pro dávkové zpracování většího množství dokumentů
+       - `/update-rules`: PUT endpoint pro aktualizaci pravidel anonymizace
+       - `/get-stats`: GET endpoint pro získání statistik o zpracovaných datech
 
-    3. **Implementace API pomocí FastAPI**: 
-       - Vytvoření robustního API pro snadnou integraci do existujících systémů.
-       - Implementace různých endpointů pro různé typy operací (jednorázová anonymizace, dávkové zpracování).
-       - Zabezpečení API pomocí OAuth2 a rate limitingu.
+    2. **API Dokumentace**:
+       - Využití Swagger UI pro interaktivní API dokumentaci
+       - Detailní popis všech endpointů, včetně vstupních a výstupních schémat
+       - Příklady použití pro každý endpoint
 
-    4. **Optimalizace výkonu**: 
-       - Využití pokročilých technik optimalizace Pythonu pro zrychlení zpracování.
-       - Možná integrace C++ pro kritické části kódu vyžadující vysoký výkon.
-       - Implementace cachování a paralelního zpracování pro zvýšení propustnosti.
+    3. **Integrace s LangChain**:
+       - Vytvoření custom LangChain tool pro anonymizaci dat
+       - Implementace LangChain agent, který bude využívat náš anonymizační nástroj
+       - Nastavení workflow pro automatické zpracování dokumentů před jejich použitím v chatbotu
 
-    5. **Kontejnerizace a mikroslužby**: 
-       - Využití Docker pro vytvoření konzistentního prostředí pro vývoj a nasazení.
-       - Návrh mikroslužeb architektury pro lepší škálovatelnost a odolnost systému.
-       - Implementace orchestrace pomocí Kubernetes pro automatické škálování a správu kontejnerů.
+    4. **Příklad využití v LangChain**:
+    ```python
+    from langchain.agents import Tool
+    from langchain.agents import initialize_agent
+    from langchain.llms import OpenAI
 
-    6. **Implementace pokročilých metod anonymizace**: 
-       - Aplikace znalostí v oblasti diferenciální soukromí pro poskytnutí silnějších garancí ochrany soukromí.
-       - Implementace k-anonymity a l-diversity pro komplexnější anonymizaci datových sad.
-       - Vývoj adaptivních metod anonymizace, které se přizpůsobují kontextu a citlivosti dat.
+    # Definice našeho anonymizačního nástroje
+    anonymization_tool = Tool(
+        name="Anonymization",
+        func=lambda x: requests.post("http://our-api.com/anonymize", json={"text": x}).json()["anonymized_text"],
+        description="Useful for anonymizing text containing personal information"
+    )
 
-    7. **Continuous Integration/Continuous Deployment**: 
-       - Nastavení CI/CD pipeline pro automatizaci testování a nasazení.
-       - Implementace automatizovaných testů, včetně unit testů, integračních testů a end-to-end testů.
-       - Využití monitorovacích nástrojů pro sledování výkonu a stability aplikace v produkčním prostředí.
+    # Inicializace agenta
+    llm = OpenAI(temperature=0)
+    agent = initialize_agent([anonymization_tool], llm, agent="zero-shot-react-description", verbose=True)
 
-    Tyto plány odrážejí potenciál pro vytváření komplexních, škálovatelných řešení v oblasti AI vývoje, s důrazem na praktické využití, bezpečnost a výkon.
+    # Použití agenta
+    agent.run("Anonymize this text and then summarize it: 'Jan Novák, born on 15.3.1985, lives at Hlavní 123, Prague.'")
+    ```
+
+    ## AI a NLP modely pro detekci PII
+
+    V budoucím vývoji plánujeme integraci pokročilých NLP a NER (Named Entity Recognition) modelů pro zlepšení detekce osobních údajů:
+
+    ### Výhody NER modelů pro náš projekt:
+
+    NER modely jsou ideální pro klasifikaci a anonymizaci textu díky své schopnosti přesně identifikovat pojmenované entity a strukturovaně kategorizovat citlivé údaje. Oproti jiným AI modelům poskytují přesnější výsledky při detekci citlivých informací, což je zásadní pro zajištění ochrany osobních údajů a správnou kategorizaci textů podle jejich obsahu.
+
+    ### Plánované využití NLP a NER modelů:
+
+    1. **Přesnější detekce PII**: Využití pre-trénovaných modelů pro identifikaci širšího spektra osobních údajů.
+    2. **Kontextová analýza**: Schopnost rozpoznat PII i v méně zřejmých kontextech.
+    3. **Multijazyčná podpora**: Rozšíření detekce PII na více jazyků.
+    4. **Adaptivní učení**: Možnost doučování modelů na specifických datech klienta.
+
+    ### Vhodné modely pro detekci PII:
+
+    - FacebookAI/xlm-roberta-large-finetuned-conll03-english: Pro multijazyčnou detekci entit.
+    - iiiorg/piiranha-v1-detect-personal-information: Specializovaný model pro detekci osobních informací.
+    - Microsoft Presidio: Framework pro detekci a anonymizaci, který můžeme integrovat do našeho řešení.
+
+    ### Implementace:
+
+    1. Využití Transformers knihovny pro integraci a fine-tuning modelů.
+    2. Vytvoření pipeline pro kombinaci rule-based přístupu s NER modely.
+    3. Implementace mechanismu pro pravidelné aktualizace a doučování modelů.
+
+    Integrace těchto pokročilých NLP a NER modelů významně zvýší přesnost a robustnost našeho anonymizačního nástroje, což umožní jeho využití i v náročnějších scénářích a pro komplexnější typy dokumentů.
     """)
 
 def show_usage_specifications():
-    st.title("Potenciál a využití projektu")
+    st.title("Specifikace využití")
     st.write("""
-    ## Integrace a využití FastAPI
+    ## Způsoby anonymizace
 
-    Plánovaná implementace FastAPI přinese následující výhody a možnosti:
+    Systém nabízí tři hlavní metody anonymizace osobních údajů:
 
-    1. **Výkonné API rozhraní**: 
-       - FastAPI umožní vytvořit rychlé a efektivní API pro přístup k funkcím anonymizace.
-       - Asynchronní zpracování pro vysokou propustnost a nízkou latenci.
+    1. **Nahrazení zástupnými znaky**: Osobní údaje jsou nahrazeny řetězcem 'X' stejné délky.
+    2. **Nahrazení obecnými pojmy**: Osobní údaje jsou nahrazeny obecným označením typu údaje (např. [JMÉNO], [ADRESA]).
+    3. **Použití falešných dat**: Osobní údaje jsou nahrazeny realisticky vypadajícími, ale fiktivními daty.
 
-    2. **Automatická dokumentace**: 
-       - Využití Swagger UI pro interaktivní API dokumentaci.
-       - Automatické generování OpenAPI (Swagger) specifikace.
+    ## Testování a ověření
 
-    3. **Asynchronní zpracování**: 
-       - Možnost asynchronního zpracování požadavků pro lepší výkon při vysoké zátěži.
-       - Efektivní využití systémových zdrojů díky asynchronnímu I/O.
+    Pro zajištění správnosti a úplnosti anonymizace systém zahrnuje:
 
-    4. **Validace dat**: 
-       - Automatická validace vstupních dat pomocí Pydantic modelů.
-       - Typová kontrola pro zvýšení spolehlivosti a bezpečnosti API.
+    1. **Generování testovacích dat**: Možnost vytvářet fiktivní dokumenty s osobními údaji pro testování.
+    2. **Statistiky detekce**: Přehled detekovaných a anonymizovaných údajů pro každý dokument.
+    3. **Vizuální porovnání**: Možnost porovnat původní a anonymizovaný text pro kontrolu.
 
-    5. **Snadná integrace**: 
-       - Jednoduché začlenění do existujících systémů pomocí RESTful API.
-       - Podpora různých formátů dat (JSON, XML, form-data).
+    ## Vstupní data
 
-    ### Příklady využití FastAPI v projektu:
+    Systém je navržen pro zpracování:
 
-    1. **Endpoint pro anonymizaci** (`/anonymize`): 
-       - Zpracování jednotlivých textů s možností specifikace typů PII k anonymizaci.
-       - Podpora různých metod anonymizace (nahrazení, maskování, generování falešných dat).
+    1. Libovolného textu zadaného uživatelem.
+    2. Generovaných falešných dat pro testovací účely.
+    3. (V budoucnu) Různých formátů dokumentů (TXT, PDF, DOC).
 
-    2. **Dávkové zpracování** (`/batch-anonymize`): 
-       - Anonymizace většího množství dokumentů v jednom požadavku.
-       - Asynchronní zpracování s možností sledování průběhu.
+    ## Zdůvodnění výběru nástrojů
 
-    3. **Customizace pravidel** (`/update-rules`): 
-       - Dynamická aktualizace pravidel anonymizace bez nutnosti restartu služby.
-       - Možnost přidávání nových typů PII a úpravy existujících pravidel.
+    1. **Python**: Široká podpora pro NLP a zpracování textu, rozsáhlý ekosystém knihoven.
+    2. **Streamlit**: Rychlé vytvoření interaktivního rozhraní pro demonstraci funkčnosti.
+    3. **Regex**: Efektivní a flexibilní nástroj pro detekci vzorů v textu.
+    4. **Faker**: Generování realistických falešných dat pro testování a anonymizaci.
 
-    4. **Statistiky a reporting** (`/stats`): 
-       - Získání statistik o zpracovaných datech a výkonu systému.
-       - Generování reportů o detekovaných a anonymizovaných PII.
-
-    5. **Verifikace anonymizace** (`/verify-anonymization`):
-       - Kontrola úspěšnosti anonymizace a detekce případných úniků PII.
-
-    ## Další možnosti integrace
-
-    Kromě FastAPI projekt nabízí:
-
-    1. **Batch processing**: 
-       - Vývoj řešení pro zpracování velkých objemů dat.
-       - Integrace s big data technologiemi jako Apache Spark pro distribuované zpracování.
-       - Možnost zpracování offline dat a velkých datových sad.
-
-    2. **Webhooks**: 
-       - Automatizované zpracování dokumentů při jejich nahrání nebo aktualizaci.
-       - Integrace s systémy pro správu dokumentů a workflow.
-       - Real-time notifikace o dokončení anonymizace.
-
-    3. **Customizace**: 
-       - Flexibilní architektura umožňující přizpůsobení specifickým potřebám klientů.
-       - Možnost rozšíření o vlastní typy PII a metody anonymizace.
-       - Konfigurovatelné pravidla a politiky anonymizace.
-
-    4. **Integrace s cloud službami**:
-       - Možnost nasazení na různé cloud platformy (AWS, Azure, Google Cloud).
-       - Využití cloud-native služeb pro škálování a správu aplikace.
-
-    5. **Rozšířené možnosti exportu**:
-       - Podpora různých formátů výstupu (JSON, CSV, XML).
-       - Možnost generování detailních reportů o provedené anonymizaci.
-
-    Tyto specifikace odrážejí potenciál pro vytváření všestranných a škálovatelných AI řešení s širokým využitím v různých odvětvích, s důrazem na moderní přístupy k vývoji API a integraci systémů.
+    Tato kombinace nástrojů umožňuje rychlý vývoj, snadnou údržbu a potenciál pro budoucí rozšíření systému.
     """)
 
 def show_test_data():
