@@ -1,38 +1,17 @@
-# Česká Anonymizační Platforma
+# Pokročilý Český PII Anotátor a Anonymizátor
 
-Tato platforma je navržena pro automatickou detekci a anonymizaci osobních údajů (PII) v českých textech. Využívá pokročilé techniky zpracování přirozeného jazyka a strojového učení pro přesnou a kontextově citlivou anonymizaci.
-
-## Funkce
-
-- Detekce a anonymizace různých typů osobních údajů včetně jmen, e-mailů, telefonních čísel, rodných čísel a dalších.
-- Podpora specifických českých formátů osobních údajů.
-- Flexibilní nastavení anonymizačních metod.
-- Uživatelské rozhraní postavené na Streamlit pro snadné použití a testování.
+Tato aplikace slouží k detekci a anonymizaci osobních údajů (PII) v českém textu.
 
 ## Instalace
 
-1. Naklonujte tento repozitář:
-   ```
-   git clone https://github.com/vas-uzivatelske-jmeno/ceska-anonymizacni-platforma.git
-   cd ceska-anonymizacni-platforma
-   ```
+1. Naklonujte tento repozitář
+2. Ujistěte se, že máte nainstalovaný Python 3.9 nebo novější
+3. Vytvořte virtuální prostředí: `python -m venv venv`
+4. Aktivujte virtuální prostředí:
+   - Na Windows: `venv\Scripts\activate`
+   - Na macOS a Linux: `source venv/bin/activate`
+5. Nainstalujte závislosti: `pip install -r requirements.txt`
 
-2. Vytvořte a aktivujte virtuální prostředí:
-   ```
-   python3.9 -m venv venv
-   source venv/bin/activate  # Na Windows použijte `venv\Scripts\activate`
-   ```
+## Spuštění aplikace
 
-3. Nainstalujte potřebné závislosti:
-   ```
-   pip install -r requirements.txt
-   ```
-
-4. Stáhněte potřebný jazykový model:
-   ```
-   python -m spacy download xx_ent_wiki_sm
-   ```
-
-## Použití
-
-Pro spuštění Streamlit aplikace použijte:
+Po instalaci spusťte aplikaci příkazem:

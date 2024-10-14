@@ -1,58 +1,149 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print("Python version:", sys.version)
+print("Python path:", sys.path)
+import site
+print("Site packages:", site.getsitepackages())
+
 import streamlit as st
-from src.main import create_analyzer
-from src.czech_anonymization.processors.document_processors import anonymize_czech_text
+import re
+from faker import Faker
+import json
+import pandas as pd
 
-# Inicializace analyzátoru
-analyzer = create_analyzer()
+# Odstraňte nebo zakomentujte tyto řádky
+# from src.czech_anonymization.analyzers import custom_recognizers
+# from src.czech_anonymization.processors import document_processors
 
-st.set_page_config(page_title="Česká Anonymizační Platforma", page_icon="🕵️", layout="wide")
+# Initialize Faker for Czech
+fake = Faker('cs_CZ')
 
-st.title("Česká Anonymizační Platforma")
+# Enhanced PII patterns (simplified for brevity)
+PII_PATTERNS = {
+    'JMÉNO': r'\b(?:(?:Ing\.|Mgr\.|JUDr\.|MUDr\.|PhDr\.|RNDr\.|doc\.|prof\.|Dr\.) )?[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+(?:[ -][A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)*(?:(,? (?:CSc\.|DrSc\.|Ph\.D\.))?)\b',
+    'RODNÉ_ČÍSLO': r'\b\d{6}/\d{3,4}\b',
+    'DATUM_NAROZENÍ': r'\b(?:\d{1,2}\.? )?(?:\d{1,2}\.? )?(?:\d{4}|(?:led(?:na|en)|únor(?:a)?|břez(?:na|en)|dub(?:na|en)|květ(?:na|en)|červ(?:na|en)(?:ec)?|srp(?:na|en)|září|říj(?:na|en)|listopa(?:du|d)|prosine(?:c|e)) ?\d{4})\b',
+    'TELEFON': r'\b(?:\+420 ?)?(?:(?:\d{3} ?){3}|\d{9})\b',
+    'EMAIL': r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b',
+    'ADRESA': r'\b[A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+(?:[ -][A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)* \d+(?:/\d+[a-zA-Z]?)?,?\s*\d{3} ?\d{2} [A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+(?:[ -][A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ][a-záčďéěíňóřšťúůýž]+)*\b',
+    'ČÍSLO_OP': r'\b(?:\d{9}|\d{6} ?\d{3})\b',
+    'ČÍSLO_PASU': r'\b[A-Z]{2}\d{7}\b',
+    'BANKOVNÍ_ÚČET': r'\b\d{1,6}-?\d{2,10}/\d{4}\b',
+    'IČO': r'\b\d{8}\b',
+    'DIČ': r'\bCZ\d{8,10}\b',
+    'DATOVÁ_SCHRÁNKA': r'\b[a-zA-Z0-9]{7}\b'
+}
 
-st.markdown("""
-Tato aplikace umožňuje anonymizaci osobních údajů v českém textu. 
-Vložte text obsahující osobní údaje a nechte naši platformu provést anonymizaci.
-""")
+def detect_and_anonymize_pii(text, selected_pii_types, anonymization_method):
+    entities = []
+    anonymized_text = text
 
-# Vstupní textové pole
-input_text = st.text_area("Vložte text k anonymizaci:", height=200)
+    for entity_type, pattern in PII_PATTERNS.items():
+        if entity_type in selected_pii_types:
+            for match in re.finditer(pattern, text):
+                entities.append({
+                    'start': match.start(),
+                    'end': match.end(),
+                    'text': match.group(),
+                    'type': entity_type
+                })
 
-# Tlačítko pro anonymizaci
-if st.button("Anonymizovat"):
-    if input_text:
-        # Provedení anonymizace
-        anonymized_text = anonymize_czech_text(input_text, analyzer)
-        
-        # Zobrazení výsledku
-        st.subheader("Anonymizovaný text:")
-        st.text_area("", anonymized_text, height=200)
-        
-        # Statistiky
-        original_words = len(input_text.split())
-        anonymized_words = len(anonymized_text.split())
-        st.info(f"Počet slov v původním textu: {original_words}")
-        st.info(f"Počet slov v anonymizovaném textu: {anonymized_words}")
-    else:
-        st.warning("Prosím, vložte text k anonymizaci.")
+    # Sort entities in reverse order to avoid index issues when replacing
+    entities.sort(key=lambda x: x['start'], reverse=True)
 
-# Přidání informací o projektu
-st.sidebar.title("O projektu")
-st.sidebar.info(
-    "Tato aplikace je ukázkou České Anonymizační Platformy, "
-    "která automaticky detekuje a anonymizuje osobní údaje v českém textu. "
-    "Využívá pokročilé techniky zpracování přirozeného jazyka a strojového učení."
-)
+    for entity in entities:
+        anonymized_value = anonymize_entity(entity, anonymization_method)
+        anonymized_text = anonymized_text[:entity['start']] + anonymized_value + anonymized_text[entity['end']:]
 
-# Přidání příkladů použití
-st.sidebar.title("Příklady použití")
-example_text = """
-Jan Novák, narozený 15.3.1980, bydlí na adrese Dlouhá 123, Praha 1, 110 00. 
-Jeho e-mailová adresa je jan.novak@example.com a telefonní číslo 123 456 789. 
-Číslo jeho občanského průkazu je AB123456 a rodné číslo 800315/1234.
-"""
-if st.sidebar.button("Vložit ukázkový text"):
-    st.text_area("Vložte text k anonymizaci:", example_text, height=200)
+    return {'original_text': text, 'anonymized_text': anonymized_text, 'entities': entities}
 
-# Footer
-st.markdown("---")
-st.markdown("© 2023 Česká Anonymizační Platforma | Vytvořeno s ❤️ pomocí Streamlit")
+def anonymize_entity(entity, method):
+    if method == 'Nahradit X':
+        return 'X' * len(entity['text'])
+    elif method == 'Nahradit [TYP_ÚDAJE]':
+        return f"[{entity['type']}]"
+    elif method == 'Použít falešná data':
+        if entity['type'] == 'JMÉNO':
+            return fake.name()
+        elif entity['type'] == 'RODNÉ_ČÍSLO':
+            return fake.ssn()
+        elif entity['type'] == 'DATUM_NAROZENÍ':
+            return fake.date(pattern='%d.%m.%Y')
+        elif entity['type'] == 'TELEFON':
+            return fake.phone_number()
+        elif entity['type'] == 'EMAIL':
+            return fake.email()
+        elif entity['type'] == 'ADRESA':
+            return fake.address()
+        else:
+            return fake.word()
+    return entity['text']
+
+def main():
+    st.title("Pokročilý Český PII Anotátor a Anonymizátor")
+
+    text_input = st.text_area("Zadejte český text k analýze:", height=200)
+
+    selected_pii_types = st.multiselect(
+        "Vyberte typy PII k detekci:",
+        list(PII_PATTERNS.keys()),
+        default=list(PII_PATTERNS.keys())
+    )
+
+    anonymization_method = st.selectbox(
+        "Vyberte metodu anonymizace:",
+        ["Nahradit X", "Nahradit [TYP_ÚDAJE]", "Použít falešná data"]
+    )
+
+    if st.button("Analyzovat a Anonymizovat"):
+        if not text_input:
+            st.error("Prosím, zadejte nějaký text k analýze.")
+        elif not selected_pii_types:
+            st.error("Prosím, vyberte alespoň jeden typ PII k detekci.")
+        else:
+            result = detect_and_anonymize_pii(text_input, selected_pii_types, anonymization_method)
+            
+            st.subheader("Výsledky anonymizace")
+            st.write(f"Anonymizace proběhla úspěšně, bylo detekováno a anonymizováno {len(result['entities'])} osobních údajů.")
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("Původní text")
+                st.text_area("", result['original_text'], height=300)
+            with col2:
+                st.subheader("Anonymizovaný text")
+                st.text_area("", result['anonymized_text'], height=300)
+
+            st.subheader("Detekované PII:")
+            pii_summary = {}
+            for entity in result['entities']:
+                if entity['type'] not in pii_summary:
+                    pii_summary[entity['type']] = 1
+                else:
+                    pii_summary[entity['type']] += 1
+
+            summary_data = [{"Typ PII": k, "Počet instancí": v, "Úspěšnost": "✅"} for k, v in pii_summary.items()]
+            st.table(pd.DataFrame(summary_data))
+
+            if st.button("Stáhnout zprávu"):
+                report = {
+                    "original_text": result['original_text'],
+                    "anonymized_text": result['anonymized_text'],
+                    "pii_summary": pii_summary
+                }
+                st.download_button(
+                    label="Stáhnout JSON zprávu",
+                    data=json.dumps(report, ensure_ascii=False, indent=2),
+                    file_name="anonymization_report.json",
+                    mime="application/json"
+                )
+
+            st.subheader("Zpětná vazba")
+            feedback = st.radio("Jste spokojeni s výsledkem anonymizace?", ("Ano", "Ne"))
+            comments = st.text_area("Další komentáře:")
+            if st.button("Odeslat zpětnou vazbu"):
+                st.success("Děkujeme za vaši zpětnou vazbu!")
+
+if __name__ == "__main__":
+    main()
