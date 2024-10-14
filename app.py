@@ -7,6 +7,8 @@ import site
 print("Site packages:", site.getsitepackages())
 
 import streamlit as st
+# Odstraňte nebo zakomentujte tento řádek
+# from streamlit_option_menu import option_menu
 import re
 from faker import Faker
 import json
@@ -81,6 +83,24 @@ def anonymize_entity(entity, method):
     return entity['text']
 
 def main():
+    st.set_page_config(page_title="Český PII Anotátor a Anonymizátor", layout="wide")
+
+    # Nahraďte option_menu standardním Streamlit selectboxem
+    selected = st.sidebar.selectbox(
+        "Navigace",
+        ["Hlavní aplikace", "O projektu", "Budoucí vývoj", "Specifikace využití"]
+    )
+
+    if selected == "Hlavní aplikace":
+        show_main_app()
+    elif selected == "O projektu":
+        show_about_project()
+    elif selected == "Budoucí vývoj":
+        show_future_development()
+    elif selected == "Specifikace využití":
+        show_usage_specifications()
+
+def show_main_app():
     st.title("Pokročilý Český PII Anotátor a Anonymizátor")
 
     text_input = st.text_area("Zadejte český text k analýze:", height=200)
@@ -144,6 +164,88 @@ def main():
             comments = st.text_area("Další komentáře:")
             if st.button("Odeslat zpětnou vazbu"):
                 st.success("Děkujeme za vaši zpětnou vazbu!")
+
+def show_about_project():
+    st.title("O projektu")
+    st.write("""
+    ## Popis projektu
+
+    Tento projekt je webová aplikace vyvinutá v Pythonu, která slouží k detekci a anonymizaci osobních údajů (PII - Personally Identifiable Information) v českém textu. Aplikace umožňuje uživatelům vložit text, vybrat typy PII k detekci a zvolit metodu anonymizace.
+
+    ## Současný stav projektu
+
+    Projekt je momentálně implementován jako Streamlit aplikace s následujícími hlavními funkcemi:
+
+    1. Vstup textu od uživatele
+    2. Výběr typů PII k detekci
+    3. Výběr metody anonymizace
+    4. Detekce a anonymizace PII v textu
+    5. Zobrazení výsledků anonymizace
+    6. Možnost stažení zprávy o anonymizaci
+    7. Sběr zpětné vazby od uživatelů
+
+    ## Použité technologie
+
+    1. Python 3.9+
+    2. Streamlit (verze 1.22.0)
+    3. Faker (verze 18.9.0)
+    4. Pandas (verze 2.0.2)
+    5. Re (standardní knihovna Pythonu)
+    6. JSON (standardní knihovna Pythonu)
+    """)
+
+def show_future_development():
+    st.title("Budoucí vývoj")
+    st.write("""
+    ## Plány pro budoucí vývoj
+
+    1. Integrace FastAPI
+    2. Rozšíření typů PII
+    3. Vylepšení metod anonymizace
+    4. Optimalizace výkonu
+    5. Integrace strojového učení
+    6. Rozšíření jazykové podpory
+    7. Vylepšení uživatelského rozhraní
+    8. Implementace unit testů
+    9. Dokumentace API
+    10. Kontejnerizace
+
+    ## Účel dalšího vývoje
+
+    Hlavním účelem dalšího vývoje je vytvořit robustní, škálovatelné a snadno integrovatelné řešení pro detekci a anonymizaci PII v českém textu. Toto řešení bude moci být využito v různých odvětvích, jako je zdravotnictví, finance, veřejná správa a další, kde je ochrana osobních údajů klíčová.
+    """)
+
+def show_usage_specifications():
+    st.title("Specifikace využití")
+    st.write("""
+    ## Možnosti využití
+
+    1. Zdravotnictví: Anonymizace zdravotních záznamů pro výzkumné účely
+    2. Finance: Ochrana osobních údajů klientů v finančních dokumentech
+    3. Veřejná správa: Anonymizace úředních dokumentů před jejich zveřejněním
+    4. Lidské zdroje: Ochrana osobních údajů zaměstnanců v interních dokumentech
+    5. Výzkum a vývoj: Anonymizace dat pro akademický výzkum
+    6. E-commerce: Ochrana údajů zákazníků v obchodních transakcích
+    7. Sociální média: Anonymizace uživatelských dat pro analýzu trendů
+
+    ## Integrace do existujících systémů
+
+    Plánovaná implementace FastAPI umožní snadnou integraci našeho řešení do existujících systémů a workflow. Toto zahrnuje:
+
+    1. REST API pro detekci a anonymizaci PII
+    2. Možnost dávkového zpracování velkých objemů dat
+    3. Webhooky pro automatizované zpracování dokumentů
+    4. Integrace s populárními platformami pro správu dokumentů
+
+    ## Přizpůsobení pro specifické potřeby
+
+    Naše řešení bude možné přizpůsobit specifickým potřebám různých odvětví a organizací, včetně:
+
+    1. Vlastních typů PII
+    2. Specifických metod anonymizace
+    3. Integrace s vlastními systémy pro správu dat
+    4. Přizpůsobení uživatelského rozhraní
+    """)
 
 if __name__ == "__main__":
     main()
