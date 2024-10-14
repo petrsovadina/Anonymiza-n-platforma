@@ -85,10 +85,14 @@ def anonymize_entity(entity, method):
 def main():
     st.set_page_config(page_title="Český PII Anotátor a Anonymizátor", layout="wide")
 
+    st.sidebar.title("Navigace")
     selected = st.sidebar.selectbox(
-        "Navigace",
+        "Vyberte sekci",
         ["Hlavní aplikace", "O projektu", "Budoucí vývoj", "Specifikace využití", "Testovací data"]
     )
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("[GitHub repozitář](https://github.com/petrsovadina/Anonymiza-n-platforma)")
 
     if selected == "Hlavní aplikace":
         show_main_app()
